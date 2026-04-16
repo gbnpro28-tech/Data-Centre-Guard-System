@@ -6999,3 +6999,4 @@ client.on(Events.InteractionCreate, async interaction => {
 client.login(process.env.DISCORD_TOKEN);
 
 console.log('✅ [SYSTEM] All Error Handlers + Verify Counter ACTIVATED | 100% CRASH-PROOF');
+// testing sync
