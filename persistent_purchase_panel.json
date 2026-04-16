@@ -1,7 +1,7 @@
 {
-  "messageId": "1490320120306729011",
+  "messageId": null,
   "channelId": "1489580365474435103",
-  "active": true,
-  "deployedBy": "1280789307027755019",
-  "deployTime": 1775390406009
+  "active": false,
+  "deployedBy": null,
+  "deployTime": null
 }

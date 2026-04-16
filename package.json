@@ -1,8 +1,17 @@
 {
   "name": "bot-discord",
   "version": "1.0.0",
+  "description": "Sistem bot Discord terintegrasi dengan fitur musik, moderasi, dan utilitas lainnya.",
   "type": "module",
   "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "prepare": "husky install",
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
   "dependencies": {
     "@discordjs/voice": "^0.17.0",
     "@distube/ytdl-core": "^4.16.12",
@@ -19,7 +28,6 @@
   "devDependencies": {
     "husky": "^8.0.0"
   },
-  "scripts": {
-    "prepare": "husky install"
-  }
+  "author": "Bot Developer",
+  "license": "ISC"
 }
