@@ -1,0 +1,44 @@
+{
+  "Atomic Farming CDID/Fish It (Recomended)": {
+    "content": "script_key=\"vcoRwfvTtpGfFPvtweQiZyKvYFGTdTHY\"; loadstring(game:HttpGet(\"https://raw.githubusercontent.com/bimoraa/Euphoria/refs/heads/main/loader.luau\"))()",
+    "createdBy": "1280789307027755019",
+    "createdAt": 1775048588207,
+    "updatedAt": 1775048588207,
+    "size": 155,
+    "version": "V2.0"
+  },
+  "Script Lintas Aerol (Recomended)": {
+    "content": "loadstring(game:HttpGet(\"https://api.jnkie.com/api/v1/luascripts/public/62c04180587b7e9e4993cda76986b5acf4e876b336ced5d434623914c638173a/download\"))()",
+    "createdBy": "1280789307027755019",
+    "createdAt": 1775048624433,
+    "updatedAt": 1775048624433,
+    "size": 150,
+    "version": "V2.0"
+  },
+  "Script Lintas Atomic": {
+    "content": "script_key=\"isi_disini\"; loadstring(game:HttpGet(\"https://api.luarmor.net/files/v4/loaders/be07d74abeddeb6dd60a6a4f4f62c219.lua\"))()",
+    "createdBy": "1280789307027755019",
+    "createdAt": 1775048673366,
+    "updatedAt": 1775048673366,
+    "size": 132,
+    "version": "V2.0"
+  },
+  "Script Arvyn Farming Fish it/Garden Horizon": {
+    "content": "loadstring(game:HttpGet(\"https://api.arvynscripts.cloud/api/files/loader.lua\"))()",
+    "createdBy": "1280789307027755019",
+    "createdAt": 1775117775079,
+    "updatedAt": 1775117775079,
+    "size": 81,
+    "version": "V4.1-ISOLATED",
+    "integrityCheck": "PASSED"
+  },
+  "Script jumanexus Abyss": {
+    "content": "loadstring(game:HttpGet(\"https://hub.jumanexus.net/main.lua\"))()",
+    "createdBy": "1280789307027755019",
+    "createdAt": 1775118732660,
+    "updatedAt": 1775118732660,
+    "size": 64,
+    "version": "V4.1-ISOLATED",
+    "integrityCheck": "PASSED"
+  }
+}

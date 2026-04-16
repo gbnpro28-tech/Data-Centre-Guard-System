@@ -1,0 +1,38 @@
+{
+  "FISH IT WEBHOOK (ATOMIC)": {
+    "url": "https://discord.com/api/webhooks/1489845832520962191/x8H0-yQw1Tc8ZPR8jcr54b2EiRol3aPpvZU9XrPiZIYDaiCzHagugt7G6iBAFP-o-yAY",
+    "channels": [],
+    "channelNames": [
+      "Global_Route"
+    ],
+    "createdBy": "1280789307027755019",
+    "createdAt": 1775277512051,
+    "updatedAt": 1775277512051,
+    "status": "ACTIVE_LISTENING",
+    "version": "V4.1-ISOLATED"
+  },
+  "CDID WEBHOOK (ATOMIC)": {
+    "url": "https://discord.com/api/webhooks/1489844608870649946/ihqEcY0hFyeNo29Bn5gyDns2tVSRmImYpIN3sTvRGAZMDkA4gYWFSo3yPRvNmw-Oc8IQ",
+    "channels": [],
+    "channelNames": [
+      "Global_Route"
+    ],
+    "createdBy": "1280789307027755019",
+    "createdAt": 1775277540832,
+    "updatedAt": 1775277540832,
+    "status": "ACTIVE_LISTENING",
+    "version": "V4.1-ISOLATED"
+  },
+  "ALL WEBHOOK (WAJIB PAKAI KALO BUKAN DARI ATOMIC)": {
+    "url": "https://discord.com/api/webhooks/1489845902561640468/WgR5mjjb9pFivNZpLwa7bq6qaqLsVuJO13MJfev__XhnOmxMZQJdqnzIY5lbLdxVyEhp",
+    "channels": [],
+    "channelNames": [
+      "Global_Route"
+    ],
+    "createdBy": "1280789307027755019",
+    "createdAt": 1775277565707,
+    "updatedAt": 1775277565707,
+    "status": "ACTIVE_LISTENING",
+    "version": "V4.1-ISOLATED"
+  }
+}
