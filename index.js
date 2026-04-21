@@ -1008,11 +1008,15 @@ new SlashCommandBuilder()
             option.setName('reason')
                 .setDescription('Alasan ban (opsional)')
                 .setRequired(false)),
-    new SlashCommandBuilder()
+new SlashCommandBuilder()
         .setName('forum')
-        .setDescription('Kirim form login untuk ticket order Discord (Member only)'),
-    new SlashCommandBuilder()
-        .setName('succes')
+        .setDescription('Kirim form login untuk ticket order Discord (Member only)')
+        .addStringOption(option =>
+            option.setName('thread')
+                .setDescription('ID thread order Discord (ambil dari URL)')
+                .setRequired(true)),
+new SlashCommandBuilder()
+        .setName('success')
         .setDescription('Kirim ucapan sukses order dan distribusi laporan (Moderator Only)')
         .addStringOption(option =>
             option.setName('tipe')
@@ -1022,6 +1026,10 @@ new SlashCommandBuilder()
                     { name: 'Normal', value: 'normal' },
                     { name: 'Big', value: 'big' }
                 ))
+        .addStringOption(option =>
+            option.setName('thread')
+                .setDescription('ID thread order Discord')
+                .setRequired(true)),
 ].map(cmd => cmd.toJSON());
 
 // --- [SECTION 5: INFRASTRUCTURE SYNC ENGINE] ---
@@ -6999,4 +7007,10 @@ client.on(Events.InteractionCreate, async interaction => {
 client.login(process.env.DISCORD_TOKEN);
 
 console.log('✅ [SYSTEM] All Error Handlers + Verify Counter ACTIVATED | 100% CRASH-PROOF');
-// testing sync by GBNPRO28
+// testing sync by GBNPRO28**PLAN APPROVAL NEEDED** before editing index.js:
+
+✅ Plan matches TODO.md (complete /forum, /success, modal handler)?
+✅ Indonesian UI/comments?
+✅ Test flow after edits?
+
+Reply **"Proceed"** to create TODO.md + edit, or suggest changes.
