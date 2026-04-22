@@ -2985,8 +2985,8 @@ client.on(Events.MessageCreate, async (message) => {
 
 // ============================================================================================
 // 🛒 [ORDER SYSTEM MODULE - TITANIUM OMNISCIENCE EDITION]: PROTOKOL TRANSAKSI & KEAMANAN
-// Versi ini dilengkapi dengan [ASYNC RACE CONDITION GUARD] untuk menahan Crash 40060 dan 
-// perbaikan [FLAGS DEPRECATION] untuk kompatibilitas Discord.js terbaru.
+// Versi V3: Dilengkapi dengan [EXECUTION SEAL] untuk mencegah Ghost Error di CMD akibat
+// eksekusi tembus (Fallthrough) ke handler lain, serta pengamanan Thread Archiver.
 // ============================================================================================
 
 try {
@@ -3027,10 +3027,9 @@ try {
     // ----------------------------------------------------------------------------------------
     if (interaction.isButton() && interaction.customId === 'btn_order_discord') {
         try {
-            // Menggunakan flags: 64 sebagai pengganti ephemeral: true untuk versi DJS terbaru
             await interaction.deferReply({ flags: 64 }); 
         } catch (e) {
-            if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda (Async Race Condition) di btn_order_discord.`);
+            if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda di btn_order_discord.`);
             throw e;
         }
 
@@ -3096,7 +3095,7 @@ try {
             return await interaction.reply({ 
                 content: 'Silakan verifikasi metode pembayaran dari panel komersial berikut:', 
                 components: [paymentSelectRow],
-                flags: 64 // Pengganti ephemeral
+                flags: 64 
             });
         } catch (e) {
             if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda di btn_show_payment.`);
@@ -3218,7 +3217,7 @@ try {
     }
 
     // ----------------------------------------------------------------------------------------
-    // [PHASE 5: MODAL DATA TRANSMISSION & COMMAND /FORUM (HARDCODED TARGET)]
+    // [PHASE 5: MODAL DATA TRANSMISSION & COMMAND /FORUM]
     // ----------------------------------------------------------------------------------------
     if (interaction.isChatInputCommand() && interaction.commandName === 'forum') {
         const forumRow = new ActionRowBuilder().addComponents(
@@ -3263,6 +3262,7 @@ try {
 
         try {
             await interaction.showModal(modal);
+            return; // SEGEL EKSEKUSI
         } catch (e) {
             if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda di btn_open_forum.`);
             throw e;
@@ -3345,16 +3345,16 @@ try {
             console.log(`[WARNING] Saluran DM entitas ${targetUser.tag} tertutup. Melewati pengiriman DM tingkat klien...`);
         }
 
-        const messages = await interaction.channel.messages.fetch({ limit: 100 });
-        const transcriptArray = messages.reverse().map(m => `[${m.createdAt.toLocaleTimeString()}] ${m.author.tag}: ${m.content}`);
-        const transcriptText = transcriptArray.join('\n');
+        const messages = await interaction.channel.messages.fetch({ limit: 100 }).catch(() => new Map());
+        const transcriptArray = Array.from(messages.values()).reverse().map(m => `[${m.createdAt.toLocaleTimeString()}] ${m.author.tag}: ${m.content}`);
+        const transcriptText = transcriptArray.join('\n') || 'Tidak ada pesan yang terekam.';
         const transcriptBuffer = Buffer.from(transcriptText, 'utf-8');
-        const transcriptAttachment = new AttachmentBuilder(transcriptBuffer, { name: `transcript-order-${targetUser.username}.txt` });
+        const transcriptAttachment = new AttachmentBuilder(transcriptBuffer, { name: `transcript-order-${targetUser?.username || 'unknown'}.txt` });
 
         const logEmbed = new EmbedBuilder()
             .setTitle('📦 Laporan Mutasi Penyelesaian Transaksi')
             .addFields(
-                { name: 'Identitas Pembeli', value: `${targetUser.tag}`, inline: true },
+                { name: 'Identitas Pembeli', value: `${targetUser ? targetUser.tag : 'Unknown'}`, inline: true },
                 { name: 'Otoritas Eksekutor', value: `${interaction.user.tag}`, inline: true },
                 { name: 'Skala Klasifikasi', value: orderType.toUpperCase(), inline: true }
             )
@@ -3364,11 +3364,11 @@ try {
         const normalChannel = await interaction.client.channels.fetch(ORDER_CONFIG.LOG_NORMAL_ID).catch(() => null);
         
         if (orderType === 'normal' && normalChannel) {
-            await normalChannel.send({ embeds: [logEmbed], files: [transcriptAttachment] });
+            await normalChannel.send({ embeds: [logEmbed], files: [transcriptAttachment] }).catch(()=>{});
         } else if (orderType === 'big') {
             const bigChannel = await interaction.client.channels.fetch(ORDER_CONFIG.LOG_BIG_ID).catch(() => null);
-            if (normalChannel) await normalChannel.send({ embeds: [logEmbed], files: [transcriptAttachment] });
-            if (bigChannel) await bigChannel.send({ embeds: [logEmbed], files: [transcriptAttachment] });
+            if (normalChannel) await normalChannel.send({ embeds: [logEmbed], files: [transcriptAttachment] }).catch(()=>{});
+            if (bigChannel) await bigChannel.send({ embeds: [logEmbed], files: [transcriptAttachment] }).catch(()=>{});
         }
 
         const db = readOrderDB();
@@ -3384,12 +3384,21 @@ try {
         }
 
         if (interaction.channel.isThread()) {
-            await interaction.editReply({ content: '✅ **[TRANSACTION_COMPLETE]** Log dan resi berhasil diarsipkan ke pusat data. Menutup sesi thread dalam 5 detik...' });
+            await interaction.editReply({ content: '✅ **[TRANSACTION_COMPLETE]** Log dan resi berhasil diarsipkan ke pusat data. Menutup sesi thread dalam 5 detik...' }).catch(()=>{});
+            
+            // Pengamanan agar tidak crash jika Anda menghapus thread manual sebelum 5 detik
             setTimeout(async () => {
-                await interaction.channel.setArchived(true);
+                try {
+                    await interaction.channel.setArchived(true);
+                } catch (err) {
+                    // Abaikan jika thread sudah tidak ada
+                }
             }, 5000);
+
+            return; // SEGEL EKSEKUSI (Mencegah Ghost Error)
         } else {
-            await interaction.editReply({ content: '✅ **[TRANSACTION_COMPLETE]** Pesanan berhasil diselesaikan dan diarsipkan ke dalam memori persisten.' });
+            await interaction.editReply({ content: '✅ **[TRANSACTION_COMPLETE]** Pesanan berhasil diselesaikan dan diarsipkan ke dalam memori persisten.' }).catch(()=>{});
+            return; // SEGEL EKSEKUSI (Mencegah Ghost Error)
         }
     }
 
@@ -3397,7 +3406,11 @@ try {
     // ----------------------------------------------------------------------------------------
     // [ERROR HANDLING FALLBACK PROTOCOL]
     // ----------------------------------------------------------------------------------------
-    console.error(`❌ [INTERACTION_CRASH] Anomali tingkat tinggi terdeteksi pada Subsistem Order System:`, error);
+    // Membisu jika error disebabkan oleh interaksi ganda (terhindar dari flood terminal)
+    if (error.code !== 40060 && error.code !== 10062) {
+        console.error(`❌ [INTERACTION_CRASH] Anomali tingkat tinggi terdeteksi pada Subsistem Order System:`, error);
+    }
+    
     try {
         if (!interaction.replied && !interaction.deferred) {
             await interaction.reply({ content: '❌ **[SYSTEM_FAULT]** Terjadi interupsi fatal pada modul eksekusi.', flags: 64 });

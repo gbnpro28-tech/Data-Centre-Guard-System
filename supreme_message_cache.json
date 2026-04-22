@@ -1,4 +1,17 @@
 {
+  "1496505459618746568": {
+    "id": "1496505459618746568",
+    "authorId": "1280789307027755019",
+    "authorTag": "gbnpro28",
+    "authorAvatar": "https://cdn.discordapp.com/avatars/1280789307027755019/f6ef187c72cfa6895db639b804e0b601.webp",
+    "channelId": "1496505403545092258",
+    "guildId": "1458387955482624083",
+    "content": "Only test",
+    "mentionsUsers": 0,
+    "mentionsRoles": 0,
+    "timestamp": 1776865105618,
+    "createdTimestamp": 1776865105300
+  },
   "1496393925299011665": {
     "id": "1496393925299011665",
     "authorId": "1280789307027755019",
@@ -5005,44 +5018,5 @@
     "mentionsRoles": 0,
     "timestamp": 1774277258661,
     "createdTimestamp": 1774277259922
-  },
-  "1485633577126461620": {
-    "id": "1485633577126461620",
-    "authorId": "1444202764476350464",
-    "authorTag": "tetapnapas12",
-    "authorAvatar": "https://cdn.discordapp.com/avatars/1444202764476350464/f40635eaeba83aff3a41b87bcdba3903.webp",
-    "channelId": "1483429105721540684",
-    "guildId": "1458387955482624083",
-    "content": "Dari dc arvyn",
-    "mentionsUsers": 0,
-    "mentionsRoles": 0,
-    "timestamp": 1774273045298,
-    "createdTimestamp": 1774273046524
-  },
-  "1485633501192781866": {
-    "id": "1485633501192781866",
-    "authorId": "1280789307027755019",
-    "authorTag": "gbnpro28",
-    "authorAvatar": "https://cdn.discordapp.com/avatars/1280789307027755019/f6ef187c72cfa6895db639b804e0b601.webp",
-    "channelId": "1483429105721540684",
-    "guildId": "1458387955482624083",
-    "content": "dimana lu dapat?",
-    "mentionsUsers": 1,
-    "mentionsRoles": 0,
-    "timestamp": 1774273027277,
-    "createdTimestamp": 1774273028420
-  },
-  "1485633469848752250": {
-    "id": "1485633469848752250",
-    "authorId": "1444202764476350464",
-    "authorTag": "tetapnapas12",
-    "authorAvatar": "https://cdn.discordapp.com/avatars/1444202764476350464/f40635eaeba83aff3a41b87bcdba3903.webp",
-    "channelId": "1483429105721540684",
-    "guildId": "1458387955482624083",
-    "content": "Maksud??",
-    "mentionsUsers": 0,
-    "mentionsRoles": 0,
-    "timestamp": 1774273019728,
-    "createdTimestamp": 1774273020947
   }
 }

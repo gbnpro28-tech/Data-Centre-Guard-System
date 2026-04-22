@@ -2,5 +2,15 @@
     "system_status": "ACTIVE",
     "last_boot": "2026-04-22T13:18:25.076Z",
     "active_orders": {},
-    "archived_orders": {}
+    "archived_orders": {
+        "1496505403545092258": {
+            "order_id": "1496505403545092258",
+            "client_id": "1280789307027755019",
+            "client_tag": "gbnpro28",
+            "status": "COMPLETED_AND_ARCHIVED",
+            "payment_method": "GOPAY",
+            "timestamp_created": "2026-04-22T13:38:12.759Z",
+            "timestamp_completed": "2026-04-22T13:38:36.450Z"
+        }
+    }
 }
