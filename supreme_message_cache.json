@@ -5044,31 +5044,5 @@
     "mentionsRoles": 0,
     "timestamp": 1774273019728,
     "createdTimestamp": 1774273020947
-  },
-  "1485633257944125622": {
-    "id": "1485633257944125622",
-    "authorId": "1280789307027755019",
-    "authorTag": "gbnpro28",
-    "authorAvatar": "https://cdn.discordapp.com/avatars/1280789307027755019/f6ef187c72cfa6895db639b804e0b601.webp",
-    "channelId": "1483429105721540684",
-    "guildId": "1458387955482624083",
-    "content": "Where you get?",
-    "mentionsUsers": 1,
-    "mentionsRoles": 0,
-    "timestamp": 1774272969224,
-    "createdTimestamp": 1774272970425
-  },
-  "1485632680404979732": {
-    "id": "1485632680404979732",
-    "authorId": "1465642366915313698",
-    "authorTag": "gtroleplay28",
-    "authorAvatar": "https://cdn.discordapp.com/avatars/1465642366915313698/a27a6812bf83763a7b042c541bffdff5.webp",
-    "channelId": "1458387956703301807",
-    "guildId": "1458387955482624083",
-    "content": "[MEDIA/EMBED/ATTACHMENT]",
-    "mentionsUsers": 0,
-    "mentionsRoles": 0,
-    "timestamp": 1774272831537,
-    "createdTimestamp": 1774272832729
   }
 }

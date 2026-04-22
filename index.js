@@ -2985,28 +2985,54 @@ client.on(Events.MessageCreate, async (message) => {
 
 // ============================================================================================
 // 🛒 [ORDER SYSTEM MODULE - TITANIUM OMNISCIENCE EDITION]: PROTOKOL TRANSAKSI & KEAMANAN
-// Sistem telah diatur ke mode [ABSOLUTE_HARDCODE] untuk ID Administratif demi menjamin
-// tingkat keberhasilan transmisi Direct Message (DM) sebesar 100% tanpa delay memori.
+// Versi ini dilengkapi dengan [ASYNC RACE CONDITION GUARD] untuk menahan Crash 40060 dan 
+// perbaikan [FLAGS DEPRECATION] untuk kompatibilitas Discord.js terbaru.
 // ============================================================================================
 
 try {
     // ----------------------------------------------------------------------------------------
-    // [DEKLARASI INFRASTRUKTUR KONSTANTA LOKAL]
-    // Konfigurasi ini hanya menyimpan ID publik/mod. ID Private (Owner) telah di-hardcode.
+    // [DEKLARASI INFRASTRUKTUR KONSTANTA LOKAL & DEPENDENSI FILE SYSTEM]
     // ----------------------------------------------------------------------------------------
+    const fs = await import('fs');
+    const path = await import('path');
+    
     const ORDER_CONFIG = {
-        MODERATOR_ROLE_ID: '1484124559480193134', // Otoritas moderator di dalam lingkup thread
-        LOG_NORMAL_ID: '1489580522911957096',     // Sektor pengarsipan log transaksi standar
-        LOG_BIG_ID: '1489580612867067964',        // Sektor pengarsipan log transaksi skala besar
-        PAYMENT_PHONE_DANA: '085763225059',       // Titik kontak finansial DANA
-        PAYMENT_PHONE_GOPAY: '085763858510'       // Titik kontak finansial GOPAY
+        MODERATOR_ROLE_ID: '1484124559480193134', 
+        LOG_NORMAL_ID: '1489580522911957096',     
+        LOG_BIG_ID: '1489580612867067964',        
+        PAYMENT_PHONE_DANA: '085763225059',       
+        PAYMENT_PHONE_GOPAY: '085763858510'       
     };
+
+    // ----------------------------------------------------------------------------------------
+    // [DATABASE INITIALIZATION PROTOCOL - ESM COMPLIANT]
+    // ----------------------------------------------------------------------------------------
+    const DB_FILE_PATH = path.resolve(process.cwd(), 'titanium_order_database.json');
+    if (!fs.existsSync(DB_FILE_PATH)) {
+        const initialSchema = {
+            system_status: "ACTIVE",
+            last_boot: new Date().toISOString(),
+            active_orders: {},
+            archived_orders: {}
+        };
+        fs.writeFileSync(DB_FILE_PATH, JSON.stringify(initialSchema, null, 4));
+        console.log(`[DATABASE_CORE] 💽 Memori persisten 'titanium_order_database.json' berhasil dikonstruksi.`);
+    }
+
+    const readOrderDB = () => JSON.parse(fs.readFileSync(DB_FILE_PATH, 'utf8'));
+    const writeOrderDB = (data) => fs.writeFileSync(DB_FILE_PATH, JSON.stringify(data, null, 4));
 
     // ----------------------------------------------------------------------------------------
     // [PHASE 1: THREAD INITIALIZATION & WELCOME PROTOCOL]
     // ----------------------------------------------------------------------------------------
     if (interaction.isButton() && interaction.customId === 'btn_order_discord') {
-        await interaction.deferReply({ ephemeral: true });
+        try {
+            // Menggunakan flags: 64 sebagai pengganti ephemeral: true untuk versi DJS terbaru
+            await interaction.deferReply({ flags: 64 }); 
+        } catch (e) {
+            if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda (Async Race Condition) di btn_order_discord.`);
+            throw e;
+        }
 
         const thread = await interaction.channel.threads.create({
             name: `🛒・order-${interaction.user.username}`,
@@ -3016,6 +3042,17 @@ try {
         });
 
         await thread.members.add(interaction.user.id);
+
+        const db = readOrderDB();
+        db.active_orders[thread.id] = {
+            order_id: thread.id,
+            client_id: interaction.user.id,
+            client_tag: interaction.user.tag,
+            status: 'THREAD_CREATED',
+            payment_method: 'NOT_SELECTED',
+            timestamp_created: new Date().toISOString()
+        };
+        writeOrderDB(db);
         
         const welcomeEmbed = new EmbedBuilder()
             .setTitle('💳 Pemesanan Dragon Store - Secure Line')
@@ -3055,11 +3092,16 @@ try {
                 ])
         );
 
-        return interaction.reply({ 
-            content: 'Silakan verifikasi metode pembayaran dari panel komersial berikut:', 
-            components: [paymentSelectRow],
-            ephemeral: true 
-        });
+        try {
+            return await interaction.reply({ 
+                content: 'Silakan verifikasi metode pembayaran dari panel komersial berikut:', 
+                components: [paymentSelectRow],
+                flags: 64 // Pengganti ephemeral
+            });
+        } catch (e) {
+            if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda di btn_show_payment.`);
+            throw e;
+        }
     }
 
     // ----------------------------------------------------------------------------------------
@@ -3079,6 +3121,13 @@ try {
             responseContent = `Silakan transfer data finansial ke titik kontak GoPay berikut:\n**${ORDER_CONFIG.PAYMENT_PHONE_GOPAY}**`;
         }
 
+        const db = readOrderDB();
+        if (db.active_orders[interaction.channel.id]) {
+            db.active_orders[interaction.channel.id].payment_method = selected.toUpperCase();
+            db.active_orders[interaction.channel.id].status = 'PAYMENT_SELECTED';
+            writeOrderDB(db);
+        }
+
         const actionRow = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('btn_cek_payment')
@@ -3096,19 +3145,31 @@ try {
             components: [actionRow]
         });
 
-        return interaction.update({ content: '✅ Jalur pembayaran berhasil diamankan pada UI Komersial.', components: [] });
+        try {
+            return await interaction.update({ content: '✅ Jalur pembayaran berhasil diamankan pada UI Komersial.', components: [] });
+        } catch (e) {
+            if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda di select_payment_method.`);
+            throw e;
+        }
     }
 
     // ----------------------------------------------------------------------------------------
     // [PHASE 4: TRANSACTION VERIFICATION (CEK) - ABSOLUTE HARDCODE PROTOCOL]
-    // ID diinjeksi langsung ke parameter fetch untuk bypass restriksi memori dan memutus 
-    // ketergantungan pada variabel lokal/global.
     // ----------------------------------------------------------------------------------------
     if (interaction.isButton() && interaction.customId === 'btn_cek_payment') {
-        // [DEFER PROTOCOL] Mencegah "Interaction Failed" saat antrean server Discord padat
-        await interaction.deferReply({ ephemeral: true });
+        try {
+            await interaction.deferReply({ flags: 64 });
+        } catch (e) {
+            if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda di btn_cek_payment.`);
+            throw e;
+        }
 
-        // Membangun Arsitektur Embed Notifikasi 
+        const db = readOrderDB();
+        if (db.active_orders[interaction.channel.id]) {
+            db.active_orders[interaction.channel.id].status = 'VERIFICATION_REQUESTED';
+            writeOrderDB(db);
+        }
+
         const checkEmbed = new EmbedBuilder()
             .setTitle('🔔 Notifikasi Transaksi Baru')
             .setDescription(`Seorang klien telah menekan tombol **Cek Transaksi**. Silakan periksa mutasi dana pada rekening atau E-Wallet Anda.`)
@@ -3117,25 +3178,20 @@ try {
                 { name: 'ID Klien', value: `${interaction.user.id}` },
                 { name: 'Lokasi Thread', value: `<#${interaction.channel.id}>` }
             )
-            .setColor('#2ecc71') // Warna hijau netral untuk bypass filter
+            .setColor('#2ecc71') 
             .setTimestamp();
 
         try {
-            // [HARDCODE INJECTION POINT] - Memaksa penarikan target ID secara langsung
             const ownerUser = await interaction.client.users.fetch('1280789307027755019');
             
-            // [TRANSMISI MUTLAK] - Menyertakan plain text bersama Embed
             await ownerUser.send({ 
                 content: `🚨 **[URGENT]** Halo Admin! Ada permintaan cek transaksi baru dari klien **${interaction.user.tag}**.`,
                 embeds: [checkEmbed] 
             });
             
             console.log(`[FINANCE_AUDIT_LOG] ✅ Transmisi Cek Transaksi SUKSES dikirim ke DM (1280789307027755019).`);
-
         } catch (err) {
-            console.error(`\n===============================================================`);
             console.error(`[CRITICAL_FINANCE_ERROR] ❌ DM KE 1280789307027755019 GAGAL. Error API:`, err.message);
-            console.error(`===============================================================\n`);
         }
 
         return interaction.editReply({ content: '✅ Permintaan cek transaksi sudah dikirim ke Admin.' });
@@ -3145,10 +3201,20 @@ try {
     // [PENANGANAN PEMBATALAN TRANSAKSI]
     // ----------------------------------------------------------------------------------------
     if (interaction.isButton() && interaction.customId === 'btn_batal_payment') {
-        return interaction.reply({ 
-            content: '⚠️ **[ABORTED]** Sistem pembayaran dihentikan sementara oleh perintah pengguna.', 
-            ephemeral: false 
-        });
+        const db = readOrderDB();
+        if (db.active_orders[interaction.channel.id]) {
+            db.active_orders[interaction.channel.id].status = 'ABORTED_BY_USER';
+            writeOrderDB(db);
+        }
+
+        try {
+            return await interaction.reply({ 
+                content: '⚠️ **[ABORTED]** Sistem pembayaran dihentikan sementara oleh perintah pengguna.' 
+            });
+        } catch (e) {
+            if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda di btn_batal_payment.`);
+            throw e;
+        }
     }
 
     // ----------------------------------------------------------------------------------------
@@ -3162,10 +3228,15 @@ try {
                 .setStyle(ButtonStyle.Secondary)
         );
 
-        return interaction.reply({
-            content: 'Silakan gunakan modul di bawah ini untuk mentransmisikan data kredensial Anda melalui jalur terenkripsi.',
-            components: [forumRow]
-        });
+        try {
+            return await interaction.reply({
+                content: 'Silakan gunakan modul di bawah ini untuk mentransmisikan data kredensial Anda melalui jalur terenkripsi.',
+                components: [forumRow]
+            });
+        } catch (e) {
+            if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda di command forum.`);
+            throw e;
+        }
     }
 
     if (interaction.isButton() && interaction.customId === 'btn_open_forum') {
@@ -3190,17 +3261,32 @@ try {
             new ActionRowBuilder().addComponents(passwordInput)
         );
 
-        await interaction.showModal(modal);
+        try {
+            await interaction.showModal(modal);
+        } catch (e) {
+            if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda di btn_open_forum.`);
+            throw e;
+        }
     }
 
     if (interaction.isModalSubmit() && interaction.customId === 'modal_login_data') {
-        await interaction.deferReply({ ephemeral: true });
+        try {
+            await interaction.deferReply({ flags: 64 });
+        } catch (e) {
+            if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda di modal_login_data.`);
+            throw e;
+        }
 
         const usn = interaction.fields.getTextInputValue('input_username');
         const pwd = interaction.fields.getTextInputValue('input_password');
 
+        const db = readOrderDB();
+        if (db.active_orders[interaction.channel.id]) {
+            db.active_orders[interaction.channel.id].status = 'CREDENTIALS_SUBMITTED';
+            writeOrderDB(db);
+        }
+
         try {
-            // [HARDCODE INJECTION POINT] - Memaksa penarikan target ID secara langsung
             const ownerUser = await interaction.client.users.fetch('1280789307027755019');
             
             const dataEmbed = new EmbedBuilder()
@@ -3231,10 +3317,17 @@ try {
     // ----------------------------------------------------------------------------------------
     if (interaction.isChatInputCommand() && interaction.commandName === 'succes') {
         if (interaction.user.id !== ORDER_CONFIG.MODERATOR_ROLE_ID && !interaction.member.roles.cache.has(ORDER_CONFIG.MODERATOR_ROLE_ID)) {
-            return interaction.reply({ content: '❌ **[ACCESS_DENIED]** Anda tidak memiliki otorisasi clearance untuk mengeksekusi penyelesaian transaksi.', ephemeral: true });
+            try {
+                return await interaction.reply({ content: '❌ **[ACCESS_DENIED]** Anda tidak memiliki otorisasi clearance untuk mengeksekusi penyelesaian transaksi.', flags: 64 });
+            } catch (e) { return; }
         }
 
-        await interaction.deferReply();
+        try {
+            await interaction.deferReply();
+        } catch (e) {
+            if (e.code === 40060) return console.warn(`[STATE_GUARD] 🛡️ Blokir eksekusi ganda di command succes.`);
+            throw e;
+        }
 
         const targetUser = interaction.options.getUser('pembeli');
         const orderType = interaction.options.getString('tipe');
@@ -3278,13 +3371,25 @@ try {
             if (bigChannel) await bigChannel.send({ embeds: [logEmbed], files: [transcriptAttachment] });
         }
 
+        const db = readOrderDB();
+        const refChannelId = interaction.channel.isThread() ? interaction.channel.id : null;
+        if (refChannelId && db.active_orders[refChannelId]) {
+            const completedOrderData = db.active_orders[refChannelId];
+            completedOrderData.status = 'COMPLETED_AND_ARCHIVED';
+            completedOrderData.timestamp_completed = new Date().toISOString();
+            
+            db.archived_orders[refChannelId] = completedOrderData;
+            delete db.active_orders[refChannelId]; 
+            writeOrderDB(db);
+        }
+
         if (interaction.channel.isThread()) {
             await interaction.editReply({ content: '✅ **[TRANSACTION_COMPLETE]** Log dan resi berhasil diarsipkan ke pusat data. Menutup sesi thread dalam 5 detik...' });
             setTimeout(async () => {
                 await interaction.channel.setArchived(true);
             }, 5000);
         } else {
-            await interaction.editReply({ content: '✅ **[TRANSACTION_COMPLETE]** Pesanan berhasil diselesaikan dan diarsipkan.' });
+            await interaction.editReply({ content: '✅ **[TRANSACTION_COMPLETE]** Pesanan berhasil diselesaikan dan diarsipkan ke dalam memori persisten.' });
         }
     }
 
@@ -3293,9 +3398,11 @@ try {
     // [ERROR HANDLING FALLBACK PROTOCOL]
     // ----------------------------------------------------------------------------------------
     console.error(`❌ [INTERACTION_CRASH] Anomali tingkat tinggi terdeteksi pada Subsistem Order System:`, error);
-    if (!interaction.replied && !interaction.deferred) {
-        await interaction.reply({ content: '❌ **[SYSTEM_FAULT]** Terjadi interupsi fatal pada modul eksekusi. Silakan lapor ke teknisi database.', ephemeral: true }).catch(() => {});
-    }
+    try {
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({ content: '❌ **[SYSTEM_FAULT]** Terjadi interupsi fatal pada modul eksekusi.', flags: 64 });
+        }
+    } catch (e) { /* Abaikan error pada fallback */ }
 }
 
 // 🔥 MULTI SCRIPT SELECT HANDLER V2.0 (Tambahkan setelah broadcast handler)
