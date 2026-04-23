@@ -2597,8 +2597,7 @@ if (interaction.isButton() && interaction.customId === 'scriptcontrol_panel_butt
             `• **📊 Stats** - Status bot real-time\n\n` +
             `**📊 Status Panel:**\n` +
             `• **Scripts:** \`${scriptCount}\`\n` +
-            `• **Webhooks:** \`${webhookCount}\`\n\n` +
-            `**⚡ Panel ini **persisten** - tetap aktif meskipun bot restart!**`
+            `• **Webhooks:** \`${webhookCount}\`\n\n`
         )
         .setColor('#5865F2')
         .addFields(
@@ -4095,8 +4094,7 @@ if (commandName === 'set') {
                             `**✅ Klik tombol **VERIFY** di bawah untuk:\n` +
                             `• Dapatkan role **MEMBER**\n` +
                             `• Ubah nickname **[MEMBER] Username**\n` +
-                            `• Akses semua channel\n\n` +
-                            `**⚡ Panel ini **persisten** - tetap aktif meskipun bot restart!**`
+                            `• Akses semua channel\n\n`
                         )
                         .setColor('#00ff88')
                         .addFields(
@@ -4159,8 +4157,7 @@ if (commandName === 'set') {
                             `• Buat private thread **langsung di channel ini**\n` +
                             `• Auto-notifikasi moderator\n` +
                             `• Auto-archive 1 jam jika tidak aktif\n\n` +
-                            `**⚠️ Hanya member dengan role MEMBER yang bisa menggunakan!**\n\n` +
-                            `**⚡ Panel ini **persisten** - tetap aktif meskipun bot restart!**`
+                            `**⚠️ Hanya member dengan role MEMBER yang bisa menggunakan!**\n\n`
                         )
                         .setColor('#5865F2')
                         .addFields(
@@ -4221,8 +4218,7 @@ if (commandName === 'set') {
                             `**Pilih role ping favorit Anda!**\n\n` +
                             `**✅ Klik tombol di bawah untuk mendapatkan:\n` +
                             `• **🏎️ CDID** - Role ping Info CDID\n` +
-                            `• **🐟 Fish It** - Role ping Info Fish It\n\n` +
-                            `**⚡ Panel ini **persisten** - tetap aktif meskipun bot restart!**`
+                            `• **🐟 Fish It** - Role ping Info Fish It\n\n`
                         )
                         .setColor('#5865F2')
                         .addFields(
@@ -4302,7 +4298,7 @@ if (commandName === 'set') {
                     `• *(Catatan Operasional: Fokus kami adalah Farming uang in-game, tidak melayani Joki Quest).*`,
                     `• Seluruh lalu lintas transaksi dipantau langsung oleh *Core Administration*.`,
                     `• Mohon identifikasi diri dengan melampirkan ID Pengguna Anda saat pemesanan.\n`,
-                    `**🚀 Klik tombol "💵 Order Via WhatsApp" di bawah untuk membuka jalur komunikasi terenkripsi!**\n`,
+                    `**🚀 Klik tombol "💵 Order Via WhatsApp" dan "🛒 Order Via Discord" di bawah untuk membuka jalur komunikasi terenkripsi!**\n`,
                     `**⚡ Gateway Komersial ini diproteksi secara absolut oleh *Titanium Persistence Engine* (24/7 ONLINE).**`
                 ].join('\n'); // Menggabungkan semua baris secara otomatis dan aman
 
