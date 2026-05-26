@@ -932,10 +932,15 @@ const COMMAND_PROTOCOLS = [
                 )
         ),
 
-    // ----------------------------------------------------------------------------------------
-    // ⚙️ [MODUL 3]: ADMINISTRASI SISTEM & MANAJEMEN PANEL
-    // ----------------------------------------------------------------------------------------
-    new SlashCommandBuilder()
+    /**
+ * ============================================================================================
+ * 🛠️ [COMMAND ARCHITECTURE: /set]
+ * --------------------------------------------------------------------------------------------
+ * Konstruktor Command Slash utama untuk deployment berbagai instrumen panel dan fungsionalitas
+ * administratif. Hak akses eksekusi secara default dibatasi pada tingkatan Moderator/Admin.
+ * ============================================================================================
+ */
+new SlashCommandBuilder()
         .setName('set')
         .setDescription('Konfigurasi sistem panel & tools (Moderator Only) - Gunakan /remove untuk hapus')
         .addStringOption(option =>
@@ -949,37 +954,28 @@ const COMMAND_PROTOCOLS = [
                     { name: '🔌 Webhook', value: 'webhook' },
                     { name: '📜 Script', value: 'script' },
                     { name: '⌨ Panel Script Control', value: 'scriptcontrol' },
-                    { name: '💰 Purchase Panel', value: 'purchase' }
+                    { name: '💰 Purchase Panel', value: 'purchase' },
+                    { name: '📞 Support Panel', value: 'support_panel' }
                 )
         )
-        .addStringOption(option => 
+
+        .addStringOption(option =>
             option.setName('url')
                 .setDescription('URL webhook lengkap (HANYA untuk Webhook)')
                 .setRequired(false)
         )
-        .addStringOption(option => 
+
+        .addStringOption(option =>
             option.setName('script')
                 .setDescription('Masukkan script lengkap (HANYA untuk Script)')
                 .setRequired(false)
         )
-        .addStringOption(option => 
+
+        .addStringOption(option =>
             option.setName('nama')
                 .setDescription('Nama (HANYA untuk Webhook/Script)')
                 .setRequired(false)
-        ),
-
-    new SlashCommandBuilder()
-        .setName('remove')
-        .setDescription('Hapus script atau webhook (Sistem Auto-detect memindai semua nama tersedia)')
-        .addStringOption(option =>
-            option.setName('module')
-                .setDescription('Pilih modul yang ingin dihapus')
-                .setRequired(true)
-                .addChoices(
-                    { name: '📜 Script', value: 'script' },
-                    { name: '🔌 Webhook', value: 'webhook' }
-                )
-        ),
+        ), 
 
     // ----------------------------------------------------------------------------------------
     // 📢 [MODUL 4]: DEPLOYMENT KONTEN & DISEMINASI INFORMASI (BROADCAST)
@@ -1112,33 +1108,6 @@ const initializeInfrastructure = async () => {
 initializeInfrastructure();
 
 // --- [SECTION 6: AUTOMATED AUDITORS & VISUAL INTELLIGENCE] ---
-
-/**
- * [NEW MODULE]: DPI Metadata Logger (Message Update Audit)
- */
-client.on(Events.MessageUpdate, async (oldMsg, newMsg) => {
-    if (!newMsg.guild || newMsg.author?.bot) return;
-    if (oldMsg.content === newMsg.content) return;
-
-    const audit = newMsg.guild.channels.cache.get(GLOBAL_MATRIX.ENDPOINTS.SECURITY_AUDIT);
-    if (!audit) return;
-
-    const dpiUI = new EmbedBuilder()
-        .setTitle('🔍 DPI_LOGGER: PACKET_MODIFICATION_DETECTED')
-        .setColor(GLOBAL_MATRIX.VISUALS.THEME_INFO)
-        .setAuthor({ name: 'DEEP PACKET INSPECTION', iconURL: newMsg.author.displayAvatarURL() })
-        .addFields(
-            { name: '👤 ORIGIN_USER', value: `<@${newMsg.author.id}>`, inline: true },
-            { name: '📍 SECTOR_NODE', value: `<#${newMsg.channelId}>`, inline: true },
-            { name: '📅 TIMESTAMP', value: `<t:${Math.floor(Date.now() / 1000)}:T>`, inline: true },
-            { name: '⬅️ PREVIOUS_DATA', value: `\`\`\`${oldMsg.content || 'NO_DATA_CACHED'}\`\`\`` },
-            { name: '➡️ MODIFIED_DATA', value: `\`\`\`${newMsg.content || 'DATA_PURGED'}\`\`\`` }
-        )
-        .setFooter({ text: 'INTEGRITY_AUDIT: MOD_SUCCESS' })
-        .setTimestamp();
-
-    await audit.send({ embeds: [dpiUI] }).catch(() => {});
-});
 
 /**
  * ============================================================================================
@@ -2364,6 +2333,105 @@ if (interaction.isButton() && interaction.customId === 'verify_panel_button') {
 }
 
 // Tambahkan di client.on(Events.InteractionCreate) SEBELUM if (!interaction.isChatInputCommand()) return;
+
+// ============================================================================================
+// 🎟️ [TICKET SYSTEM INTERACTION]: PRIVATE THREAD GENERATOR PROTOCOL
+// ============================================================================================
+if (interaction.isButton() && interaction.customId === 'core_btn_create_ticket') {
+    // 1. Mengamankan state interaksi (Defer) untuk mencegah timeout "This interaction failed"
+    await interaction.reply({ content: '⏳ **[SYSTEM_PROCESSING]** Menginisiasi protokol enkripsi dan pembuatan Private Thread khusus untuk Anda...', ephemeral: true });
+
+    try {
+        // 2. Mengkonfigurasi parameter fundamental untuk struktur identitas Thread
+        const rawUsername = interaction.user.username;
+        const threadTitle = `🎟️ Ticket-${rawUsername}`;
+        const targetChannel = interaction.channel;
+        const moderatorRoleId = '1484124559480193134'; 
+
+        // 3. Mengeksekusi pembuatan entitas Private Thread tingkat lanjut
+        const secureTicketThread = await targetChannel.threads.create({
+            name: threadTitle,
+            autoArchiveDuration: 1440, // Siklus pengarsipan otomatis (24 Jam) untuk manajemen memori
+            type: ChannelType.PrivateThread,
+            reason: `Support Ticket Auto-Generated for Authorized Entity: ${interaction.user.tag}`
+        });
+
+        // 4. Memasukkan subjek (user) yang menekan tombol ke dalam isolasi Thread
+        await secureTicketThread.members.add(interaction.user.id);
+
+        // 5. Membangun Kartu Ucapan / Instruksi Menunggu (Greeting Interface)
+        const greetingEmbed = new EmbedBuilder()
+            .setTitle('🎟️ GUARDIAN SUPPORT TICKET')
+            .setColor('#2b2d31')
+            .setDescription(
+                `**Hello, <@${interaction.user.id}>!**\n\n` +
+                `Welcome to your secure private support channel. Please wait patiently until a moderator (<@&${moderatorRoleId}>) reviews and replies to your ticket.\n\n` +
+                `**Instruction:**\n` +
+                `Please describe your issue, inquiry, or report in detail below so our technical team can assist you efficiently.`
+            )
+            .setFooter({ text: 'Guardian Support Protocol • Isolation Level: Maximum' })
+            .setTimestamp();
+
+        // 6. Menyediakan Tombol Penutup (Termination Button) berwarna Merah (Danger)
+        const terminationRow = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('core_btn_terminate_ticket')
+                .setLabel('Done')
+                .setStyle(ButtonStyle.Danger) // Tombol eksekusi berwarna merah
+        );
+
+        // 7. Mengirimkan ping sistem untuk menarik entitas Role Moderator ke dalam Private Thread
+        await secureTicketThread.send({ 
+            content: `**[SYSTEM_PING_TRIGGERED]** <@${interaction.user.id}> | <@&${moderatorRoleId}>`, 
+            embeds: [greetingEmbed], 
+            components: [terminationRow] 
+        });
+
+        // 8. Memperbarui status interaksi awal dengan navigasi link menuju Thread
+        await interaction.editReply({ 
+            content: `✅ **[THREAD_ESTABLISHED]** Kanal tiket privat Anda berhasil dikonstruksi. Silakan pindah ke sektor berikut: <#${secureTicketThread.id}>` 
+        });
+
+    } catch (ticketGenerationError) {
+        // Logging arsitektur tingkat rendah jika pembuatan Thread gagal (biasanya karena limitasi Discord API / Permission)
+        console.error(`❌ [TICKET_GENERATION_FAULT]:`, ticketGenerationError);
+        await interaction.editReply({ 
+            content: `❌ **[CRITICAL_ERROR]** Mesin utama gagal menginisiasi Private Thread. Pastikan integritas *Permission* bot mencakup otoritas **'Create Private Threads'** dan **'Send Messages in Threads'**.` 
+        });
+    }
+}
+
+// ============================================================================================
+// 🗑️ [TICKET SYSTEM INTERACTION]: SECURE TERMINATION & DELETION PROTOCOL
+// ============================================================================================
+if (interaction.isButton() && interaction.customId === 'core_btn_terminate_ticket') {
+    // 1. Validasi Akses Tingkat Tinggi (Otoritas Kunci Tunggal)
+    const supremeAuthorityId = '1280789307027755019'; 
+
+    if (interaction.user.id !== supremeAuthorityId) {
+        // Memicu protokol penolakan akses (Firewall) jika eksekutor tidak terdaftar di database
+        return interaction.reply({ 
+            content: `⛔ **[SECURITY_CLEARANCE_FAILED]** Eksekusi penutupan ditolak. Hanya Otoritas Utama dengan klasifikasi ID \`${supremeAuthorityId}\` yang diizinkan untuk menghancurkan sektor operasional ini.`, 
+            ephemeral: true 
+        });
+    }
+
+    // 2. Menerima otorisasi dan memulai hitung mundur kinetik penghancuran (Delay)
+    await interaction.reply({ 
+        content: `⚠️ **[TERMINATION_PROTOCOL_ACTIVATED]** Kredensial diterima. Mengamankan cache dan bersiap menghancurkan Private Thread ini secara permanen dari arsitektur server dalam **3 detik**...` 
+    });
+
+    // 3. Mengeksekusi timer asynchronous sebelum pelenyapan entitas kanal
+    setTimeout(async () => {
+        try {
+            // Memaksa (Force Delete) kanal untuk terhapus dari memori server
+            await interaction.channel.delete(`Ticket terminated, audited, and systematically erased by Supreme Authority ID: ${interaction.user.id}`);
+            console.log(`✅ [TICKET_TERMINATION_SUCCESS] Thread tiket telah dihanguskan dari sektor utama.`);
+        } catch (deletionError) {
+            console.error(`❌ [TICKET_DELETION_FAULT]: Kegagalan saat memproses penghancuran (deletion) kanal tiket:`, deletionError);
+        }
+    }, 3000); // Menggunakan jeda visualisasi 3000ms
+}
 
 // 🔥 GETJOB PANEL BUTTON HANDLER
 if (interaction.isButton() && interaction.customId === 'getjob_panel_button') {
@@ -4074,6 +4142,7 @@ if (commandName === 'set') {
             case 'verify':
             case 'getjob':
             case 'cdid':
+            case 'support_panel':
                 // === PANEL DEPLOYMENT (NO EXTRA OPTIONS NEEDED) ===
                 if (modul === 'verify') {
                     // Verify panel code (tetap sama)
@@ -4267,6 +4336,67 @@ if (commandName === 'set') {
                         ] 
                     });
                 }
+                
+else if (modul === 'support_panel') {
+                    // ------------------------------------------------------------------------
+                    // 📞 [MODULE INITIALIZATION]: GUARDIAN SERVER SUPPORT PANEL
+                    // ------------------------------------------------------------------------
+                    
+                    // [CRITICAL FIX]: Alokasi memori & pengikatan (binding) sektor channel saat ini
+                    const targetChannel = interaction.channel;
+                    
+                    // [FAIL-SAFE LAYER]: Validasi eksistensi channel untuk mencegah Null-Pointer Exception
+                    if (!targetChannel) {
+                        return interaction.editReply({ 
+                            content: '❌ **[CHANNEL_FAULT]** Engine gagal mendeteksi matriks channel tempat perintah ini dieksekusi. Transmisi dibatalkan.' 
+                        });
+                    }
+
+                    // Membangun konstruksi antarmuka visual (Embed) tingkat lanjut
+                    const supportPanelUI = new EmbedBuilder()
+                        .setTitle('🛡️ GUARDIAN SERVER SUPPORT')
+                        .setDescription(
+                            `**Welcome to the Official Guardian Server Support System.**\n\n` +
+                            `If you require any technical assistance, have inquiries regarding your account, or wish to report an anomaly, please initiate a secure communication channel by clicking the ticket button below.\n\n` +
+                            `🔹 **Response Time:** Our moderation team will address your concern as expeditiously as possible.\n` +
+                            `🔹 **Confidentiality:** All tickets are end-to-end isolated (Private Threads) to ensure data privacy and operational security.`
+                        )
+                        .setColor('#5865F2') // Warna Primary default dari palet Discord
+                        .addFields(
+                            { name: '🌐 Encryption Level', value: '`AES-256 (Thread Isolated)`', inline: true },
+                            { name: '🛡️ Engine', value: '`GUARDIAN_TITANIUM`', inline: true }
+                        )
+                        .setFooter({ 
+                            text: 'Guardian Infrastructure • Secured Support Protocol', 
+                            iconURL: interaction.client.user.displayAvatarURL() 
+                        })
+                        .setTimestamp();
+
+                    // Membangun matriks interaksi berbasis komponen grafis
+                    const ticketActionRow = new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('core_btn_create_ticket')
+                            .setLabel('🎟️ Ticket')
+                            .setStyle(ButtonStyle.Primary)
+                    );
+
+                    // Mengeksekusi transmisi payload data ke targetChannel yang sekarang sudah terdefinisi
+                    const panelMessageSupport = await targetChannel.send({ 
+                        embeds: [supportPanelUI], 
+                        components: [ticketActionRow] 
+                    });
+                    
+                    // Memberikan konfirmasi respons balasan secara profesional kepada eksekutor
+                    await interaction.editReply({ 
+                        embeds: [new EmbedBuilder()
+                            .setTitle('✅ SUPPORT PANEL DEPLOYED')
+                            .setColor('#5865F2')
+                            .setDescription(`**📍 Sektor Aktif:** ${targetChannel.toString()}\n**🆔 Hash Message:** \`${panelMessageSupport.id}\`\n\n*Modul Guardian Support System telah online dan siap menerima transmisi pengguna.*`)
+                            .setFooter({ text: 'System Telemetry Synced' })
+                        ] 
+                    });
+                }
+
 /**
              * ============================================================================================
              * 💰 [ENTERPRISE MODULE: DRAGON STORE COMMERCIAL UI - EXCLUSIVE DEPLOYMENT]

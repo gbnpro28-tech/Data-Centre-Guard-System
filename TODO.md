@@ -5,6 +5,7 @@
 ### Langkah-langkah Breakdown (BLACKBOXAI TRACKER):
 
 - **[✅ Selesai] Buat/update TODO.md** - Progress tracking aktif
+
 1. **[⏳ TODO] Lengkapi /forum slash command** - Modal → session + sanitize
 2. **[⏳ TODO] Tambah /success slash command** - Thank you + report normal/big
 3. **[⏳ TODO] Fix modal handler 'discord_order_forum_modal'** - Sanitize transcript → DM owner
